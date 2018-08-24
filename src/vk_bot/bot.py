@@ -2,14 +2,13 @@ import threading
 import collections
 import vk_client
 from six.moves import queue
-from . import config
 
 
 class VkBot(object):
 
-    def __init__(self, name):
+    def __init__(self, name, config):
         self.name = name
-        self.config = config.Config()
+        self.config = config
         self.vk = vk_client.VkClient(self.config.ACCESS_TOKEN)
         self.dispatcher = Dispatcher()
 
