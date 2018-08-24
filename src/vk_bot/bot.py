@@ -26,10 +26,8 @@ class VkBot(object):
     def event_handler(self, event_types):
 
         def register(func):
-
             for event_type in event_types:
                 self.dispatcher.add_handler(event_type, func)
-
             return func
 
         return register
