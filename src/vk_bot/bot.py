@@ -1,7 +1,7 @@
 import threading
 import collections
-from six.moves import queue
 import vk_client
+from six.moves import queue
 from . import config
 
 
@@ -12,12 +12,12 @@ class VkBot(object):
         self.config = config.Config()
         self.vk = vk_client.VkClient(self.config.ACCESS_TOKEN)
 
-        self.blp = self.vk.BotsLongPoll.get(self.config.GROUP_ID)
+        self.blp = self.vk.BotsLongPoll.get()
         self.q = queue.Queue()
         self.dispatcher = Dispatcher()
 
-        self.producer = EventProducer(self.blp, self.q)
-        self.consumer = EventConsumer(self.dispatcher, self.q)
+        self.producer = EventProducer(self.blp, self.q, name="EventsProducer")
+        self.consumer = EventConsumer(self.dispatcher, self.q, name="EventsConsumer")
 
     def run(self):
         self.producer.start()
