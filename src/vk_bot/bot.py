@@ -11,24 +11,25 @@ class VkBot(object):
         self.name = name
         self.config = config.Config()
         self.vk = vk_client.VkClient(self.config.ACCESS_TOKEN)
-
-        self.blp = self.vk.BotsLongPoll.get()
-        self.q = queue.Queue()
         self.dispatcher = Dispatcher()
 
-        self.producer = EventProducer(self.blp, self.q, name="EventsProducer")
-        self.consumer = EventConsumer(self.dispatcher, self.q, name="EventsConsumer")
-
     def run(self):
-        self.producer.start()
-        self.consumer.start()
+        q = queue.Queue()
+        blp = self.vk.BotsLongPoll.get()
 
-    def event_handler(self, event_types):
+        producer = EventProducer(q, blp, ame="EventsProducer")
+        consumer = EventConsumer(q, self.dispatcher, name="EventsConsumer")
 
-        def register(func):
+        producer.start()
+        consumer.start()
+
+    def on(self, event_types):
+
+        def register(event_handler):
             for event_type in event_types:
-                self.dispatcher.add_handler(event_type, func)
-            return func
+                self.dispatcher.add_handler(event_type, event_handler)
+
+            return event_handler
 
         return register
 
@@ -36,22 +37,22 @@ class VkBot(object):
 class Dispatcher(object):
 
     def __init__(self):
-        self.event_handlers = collections.defaultdict(list)
+        self.handlers = collections.defaultdict(list)
 
     def add_handler(self, event_type, event_handler):
-        self.event_handlers[event_type].append(event_handler)
+        self.handlers[event_type].append(event_handler)
 
     def dispatch(self, event):
-        for event_handler in self.event_handlers[event.type]:
+        for event_handler in self.handlers[event.type]:
             event_handler(event)
 
 
 class EventProducer(threading.Thread):
 
-    def __init__(self, blp, q, **thread_kwargs):
+    def __init__(self, q, blp, **thread_kwargs):
         super(EventProducer, self).__init__(**thread_kwargs)
-        self.blp = blp
         self.q = q
+        self.blp = blp
 
     def run(self):
         while True:
@@ -61,10 +62,10 @@ class EventProducer(threading.Thread):
 
 class EventConsumer(threading.Thread):
 
-    def __init__(self, dispatcher, q, **thread_kwargs):
+    def __init__(self, q, dispatcher, **thread_kwargs):
         super(EventConsumer, self).__init__(**thread_kwargs)
-        self.dispatcher = dispatcher
         self.q = q
+        self.dispatcher = dispatcher
 
     def run(self):
         while True:
