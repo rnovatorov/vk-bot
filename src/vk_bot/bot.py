@@ -15,7 +15,7 @@ class VkBot(object):
         q = queue.Queue()
         blp = self.vk.BotsLongPoll.get()
 
-        producer = EventProducer(q, blp, ame="EventsProducer")
+        producer = EventProducer(q, blp, name="EventsProducer")
         consumer = EventConsumer(q, self.dispatcher, name="EventsConsumer")
 
         producer.start()
