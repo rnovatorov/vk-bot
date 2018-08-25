@@ -6,10 +6,9 @@ from six.moves import queue
 
 class VkBot(object):
 
-    def __init__(self, name, config):
+    def __init__(self, name, access_token):
         self.name = name
-        self.config = config
-        self.vk = vk_client.VkClient(self.config.ACCESS_TOKEN)
+        self.vk = vk_client.VkClient(access_token)
         self.dispatcher = Dispatcher()
 
     def run(self):
