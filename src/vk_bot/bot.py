@@ -42,7 +42,7 @@ class Dispatcher(object):
 
     def dispatch(self, event):
         for event_handler in self.handlers[event.type]:
-            event_handler(event)
+            event_handler(event=event)
 
 
 class EventProducer(threading.Thread):
