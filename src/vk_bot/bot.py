@@ -21,6 +21,9 @@ class VkBot(object):
         producer.start()
         consumer.start()
 
+    def add_handler(self, event_type, event_handler):
+        self.handlers[event_type].append(event_handler)
+
     def on(self, event_types):
 
         def register(event_handler):
@@ -30,9 +33,6 @@ class VkBot(object):
             return event_handler
 
         return register
-
-    def add_handler(self, event_type, event_handler):
-        self.handlers[event_type].append(event_handler)
 
     def dispatch(self, event):
         for event_handler in self.handlers[event.type]:
