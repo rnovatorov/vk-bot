@@ -1,22 +1,22 @@
-import threading
-import collections
-import vk_client
-from six.moves import queue
+from collections import defaultdict
+from vk_client import VkClient
+from six.moves.queue import Queue
+from .workers import Producer, Consumer
 
 
 class VkBot(object):
 
     def __init__(self, name, access_token):
         self.name = name
-        self.vk = vk_client.VkClient(access_token)
-        self.dispatcher = Dispatcher()
+        self.vk = VkClient(access_token)
+        self.handlers = defaultdict(list)
 
     def run(self):
-        q = queue.Queue()
+        queue = Queue()
         blp = self.vk.BotsLongPoll.get()
 
-        producer = EventProducer(q, blp, name="EventsProducer")
-        consumer = EventConsumer(q, self.dispatcher, name="EventsConsumer")
+        producer = Producer(queue, func=blp.get_updates)
+        consumer = Consumer(queue, func=self.dispatch)
 
         producer.start()
         consumer.start()
@@ -25,17 +25,11 @@ class VkBot(object):
 
         def register(event_handler):
             for event_type in event_types:
-                self.dispatcher.add_handler(event_type, event_handler)
+                self.add_handler(event_type, event_handler)
 
             return event_handler
 
         return register
-
-
-class Dispatcher(object):
-
-    def __init__(self):
-        self.handlers = collections.defaultdict(list)
 
     def add_handler(self, event_type, event_handler):
         self.handlers[event_type].append(event_handler)
@@ -43,31 +37,3 @@ class Dispatcher(object):
     def dispatch(self, event):
         for event_handler in self.handlers[event.type]:
             event_handler(event=event)
-
-
-class EventProducer(threading.Thread):
-
-    def __init__(self, q, blp, **thread_kwargs):
-        super(EventProducer, self).__init__(**thread_kwargs)
-        self.q = q
-        self.blp = blp
-
-    def run(self):
-        while True:
-            for event in self.blp.get_updates():
-                self.q.put(event)
-
-
-class EventConsumer(threading.Thread):
-
-    def __init__(self, q, dispatcher, **thread_kwargs):
-        super(EventConsumer, self).__init__(**thread_kwargs)
-        self.q = q
-        self.dispatcher = dispatcher
-
-    def run(self):
-        while True:
-            event = self.q.get()
-            if event is not None:
-                self.dispatcher.dispatch(event)
-                self.q.task_done()
