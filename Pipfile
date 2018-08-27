@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
+vk-bot = {editable = true, path = "."}
 pytest = "*"
 
 [packages]
