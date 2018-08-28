@@ -16,6 +16,7 @@ pip install vk-bot
 import vk_bot
 import operator
 
+# Create bot
 bot = vk_bot.VkBot('YOUR_ACCESS_TOKEN')
 
 OPS = {
@@ -25,6 +26,7 @@ OPS = {
     'div': operator.truediv
 }
 
+# Register commands
 @bot.command(
     name='calc',
     args_defs=[
@@ -43,4 +45,7 @@ def calc(msg, ns):
         peer=msg.sender,
         message=rv
     )
+
+# Run
+bot.run()
 ```
