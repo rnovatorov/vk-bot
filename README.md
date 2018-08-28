@@ -15,7 +15,7 @@ pip install vk-bot
 import vk_bot
 import operator
 
-bot = vk_bot.VkBot(YOUR_ACCESS_TOKEN)
+bot = vk_bot.VkBot('YOUR_ACCESS_TOKEN')
 
 OPS = {
     'add': operator.add,
