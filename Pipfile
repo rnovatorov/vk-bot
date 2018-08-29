@@ -6,6 +6,7 @@ name = "pypi"
 [dev-packages]
 vk-bot = {editable = true, path = "."}
 pytest = "*"
+pytest-mock = "*"
 
 [packages]
 six = "*"
