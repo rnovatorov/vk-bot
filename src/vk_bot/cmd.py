@@ -1,4 +1,5 @@
 import shlex
+import logging
 from argparse import ArgumentParser
 from vk_client.enums import GroupEventType
 
@@ -38,6 +39,9 @@ class CmdHandlerMixin(object):
         )
 
     def add_command(self, func, name, args_defs):
+        logging.debug("Registering %s to handle %s, args defs: %s",
+                      func, name, args_defs)
+
         parser = self._subparsers.add_parser(name)
 
         for name_or_flags, params in args_defs:
@@ -61,16 +65,23 @@ class CmdHandlerMixin(object):
         def handle_cmd(msg):
 
             if msg.text.startswith(self._prefix):
+
                 args_list = self._parse_cmd(msg.text)
+                logging.debug("Got cmd: '%s', args list: %s", msg.text, args_list)
 
                 try:
                     ns = self._parser.parse_args(args_list)
+                    logging.debug("Ns: %s", ns)
+
                 except CmdParserExit as e:
+                    logging.debug("CmdParserExit: %s", e)
                     self.vk.Message.send(
                         peer=msg.sender,
                         message=str(e) or "Unable to parse a command."
                     )
+
                 else:
+                    logging.debug("Parsed OK, executing: %s", ns.func)
                     ns.func(msg, ns)
 
     def _parse_cmd(self, string):
