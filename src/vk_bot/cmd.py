@@ -67,7 +67,8 @@ class CmdHandlerMixin(object):
             if msg.text.startswith(self._prefix):
 
                 args_list = self._parse_cmd(msg.text)
-                logging.debug("Got cmd: '%s', args list: %s", msg.text, args_list)
+                logging.debug("Got cmd: '%s', args list: %s",
+                              msg.text, args_list)
 
                 try:
                     ns = self._parser.parse_args(args_list)
