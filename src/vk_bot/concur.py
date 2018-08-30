@@ -1,10 +1,11 @@
+from six.moves.queue import Queue
 from threading import Thread
 
 
 class Worker(Thread):
 
-    def __init__(self, queue, func, **thread_kwargs):
-        super(Worker, self).__init__(**thread_kwargs)
+    def __init__(self, queue, func, **kwargs):
+        super(Worker, self).__init__(**kwargs)
         self.queue = queue
         self.func = func
 

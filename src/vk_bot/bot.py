@@ -1,9 +1,8 @@
 import logging
 from collections import defaultdict
 from vk_client import VkClient
-from six.moves.queue import Queue
 from .cmd import CmdHandlerMixin
-from .workers import Producer, Consumer
+from .concur import Queue, Producer, Consumer
 
 
 class VkBot(CmdHandlerMixin):
@@ -20,7 +19,7 @@ class VkBot(CmdHandlerMixin):
         self._enable_cmd_handler()
 
     def add_event_handler(self, event_type, event_handler):
-        logging.debug("Registering %s to handle '%s' command",
+        logging.debug("Registering %s to handle %s",
                       event_handler, event_type)
         self._event_handlers[event_type].append(event_handler)
 
@@ -42,14 +41,14 @@ class VkBot(CmdHandlerMixin):
         self._workers.append(Producer(
             queue=self._queue,
             func=blp.get_updates,
-            name="ProducerThread"
+            name="Producer"
         ))
 
         for i in range(n_workers):
             self._workers.append(Consumer(
                 queue=self._queue,
                 func=self._dispatch_event,
-                name="ConsumerThread-%d" % i
+                name="Consumer-%d" % i
             ))
 
         for worker in self._workers:

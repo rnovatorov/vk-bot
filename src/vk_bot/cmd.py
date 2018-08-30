@@ -39,7 +39,7 @@ class CmdHandlerMixin(object):
         )
 
     def add_command(self, func, name, args_defs):
-        logging.debug("Registering %s to handle %s, args defs: %s",
+        logging.debug("Registering %s to handle '%s', args defs: %s",
                       func, name, args_defs)
 
         parser = self._subparsers.add_parser(name)
