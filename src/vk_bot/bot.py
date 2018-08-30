@@ -7,12 +7,14 @@ from .workers import Producer, Consumer
 
 class VkBot(CmdHandlerMixin):
 
-    def __init__(self, access_token):
+    def __init__(self, access_token, n_workers=1):
         super(VkBot, self).__init__()
 
         self.vk = VkClient(access_token)
 
         self._queue = Queue()
+        self._workers = []
+        self._n_workers = n_workers
         self._event_handlers = defaultdict(list)
 
         self._enable_cmd_handler()
@@ -34,11 +36,19 @@ class VkBot(CmdHandlerMixin):
     def run(self):
         blp = self.vk.BotsLongPoll.get()
 
-        producer = Producer(self._queue, func=blp.get_updates)
-        consumer = Consumer(self._queue, func=self._dispatch_event)
+        self._workers.append(Producer(
+            queue=self._queue,
+            func=blp.get_updates
+        ))
 
-        producer.start()
-        consumer.start()
+        for _ in range(self._n_workers):
+            self._workers.append(Consumer(
+                queue=self._queue,
+                func=self._dispatch_event
+            ))
+
+        for worker in self._workers:
+            worker.start()
 
     def _dispatch_event(self, event):
         for event_handler in self._event_handlers[event.type]:
