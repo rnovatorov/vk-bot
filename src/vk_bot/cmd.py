@@ -42,7 +42,10 @@ class CmdHandlerMixin(object):
         logging.debug("Registering %s to handle '%s', args defs: %s",
                       func, name, args_defs)
 
-        parser = self._subparsers.add_parser(name)
+        parser = self._subparsers.add_parser(
+            name=name,
+            description=func.__doc__
+        )
 
         for name_or_flags, params in args_defs:
             parser.add_argument(*name_or_flags, **params)
@@ -83,7 +86,16 @@ class CmdHandlerMixin(object):
 
                 else:
                     logging.debug("Parsed OK, executing: %s", ns.func)
-                    ns.func(msg, ns)
+                    self._exec_cmd(
+                        cmd=lambda: ns.func(msg, ns),
+                        report_to=msg.sender
+                    )
+
+    def _exec_cmd(self, cmd, report_to):
+        try:
+            cmd()
+        except Exception as e:
+            self.vk.Message.send(report_to, "Error: %s." % e)
 
     def _parse_cmd(self, string):
         return shlex.split(string.lstrip(self._prefix))
