@@ -27,24 +27,17 @@ OPS = {
 }
 
 # Register commands
-@bot.command(
-    name='calc',
-    args_defs=[
-        [('op',), {'choices': list(OPS)}],
-        [('a',), {'type': int}],
-        [('b',), {'type': int}]
-    ]
-)
-def calc(msg, ns):
+@bot.command(args={
+    'op': {'choices': list(OPS)},
+    'a': {'type': int},
+    'b': {'type': int}
+})
+def calc(_, op, a, b):
+    """Simple calculator."""
     try:
-        rv = f'Result: {OPS[ns.op](ns.a, ns.b)}'
+        return f'Result: {OPS[op](a, b)}'
     except ArithmeticError as e:
-        rv = f'Error: {e}'
-
-    bot.vk.Message.send(
-        peer=msg.sender,
-        message=rv
-    )
+        return f'Error: {e}'
 
 # Run
 bot.run()

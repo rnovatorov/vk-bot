@@ -38,25 +38,25 @@ class CmdHandlerMixin(object):
             parser_class=CmdParser
         )
 
-    def add_command(self, func, name=None, args_defs=None):
+    def add_command(self, func, name=None, args=None):
         if name is None:
             name = func.__name__
 
-        if args_defs is None:
-            args_defs = []
+        if args is None:
+            args = {}
 
-        logging.debug("Registering %s to handle '%s', args defs: %s",
-                      func, name, args_defs)
+        logging.debug("Registering %s to handle '%s', args: %s",
+                      func, name, args)
 
         parser = self._subparsers.add_parser(
             name=name,
             description=func.__doc__
         )
 
-        for name_or_flags, params in args_defs:
-            parser.add_argument(*name_or_flags, **params)
+        for arg, params in args.items():
+            parser.add_argument(arg, **params)
 
-        parser.set_defaults(func=func)
+        parser.set_defaults(_func=func)
 
     def command(self, *args, **kwargs):
         """
@@ -72,40 +72,32 @@ class CmdHandlerMixin(object):
 
         @self.on([GroupEventType.MESSAGE_NEW])
         def handle_cmd(msg):
+            if not msg.text.startswith(self._prefix):
+                return
 
-            if msg.text.startswith(self._prefix):
+            logging.debug("Got cmd: '%s'", msg.text)
 
-                args_list = self._parse_cmd(msg.text)
-                logging.debug("Got cmd: '%s', args list: %s",
-                              msg.text, args_list)
+            args_list = shlex.split(msg.text.lstrip(self._prefix))
+            logging.debug("Args list: %s", args_list)
 
+            try:
+                ns = self._parser.parse_args(args_list)
+                logging.debug("Ns: %s", ns)
+
+            except CmdParserExit as e:
+                logging.debug("CmdParserExit: %s", e)
+                response = str(e) or "Unable to parse a command."
+
+            else:
                 try:
-                    ns = self._parser.parse_args(args_list)
-                    logging.debug("Ns: %s", ns)
+                    response = ns._func(msg, **{
+                        k: v
+                        for k, v in vars(ns).items()
+                        if not k.startswith('_')
+                    })
+                except Exception as e:
+                    logging.exception(e)
+                    response = "Error."
 
-                except CmdParserExit as e:
-                    logging.debug("CmdParserExit: %s", e)
-                    self.vk.Message.send(
-                        peer=msg.sender,
-                        message=str(e) or "Unable to parse a command."
-                    )
-
-                else:
-                    logging.debug("Parsed OK, executing: %s", ns.func)
-                    self._exec_cmd(
-                        cmd=lambda: ns.func(msg, ns),
-                        report_to=msg.sender
-                    )
-
-    def _exec_cmd(self, cmd, report_to):
-        try:
-            response = cmd()
-        except Exception as e:
-            logging.exception(e)
-            response = "Error."
-
-        if response:
-            self.vk.Message.send(report_to, response)
-
-    def _parse_cmd(self, string):
-        return shlex.split(string.lstrip(self._prefix))
+            if response:
+                self.vk.Message.send(msg.sender, response)
