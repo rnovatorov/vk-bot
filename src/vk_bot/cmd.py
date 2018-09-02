@@ -99,9 +99,13 @@ class CmdHandlerMixin(object):
 
     def _exec_cmd(self, cmd, report_to):
         try:
-            cmd()
+            response = cmd()
         except Exception as e:
-            self.vk.Message.send(report_to, "Error: %s." % e)
+            logging.exception(e)
+            response = "Error."
+
+        if response:
+            self.vk.Message.send(report_to, response)
 
     def _parse_cmd(self, string):
         return shlex.split(string.lstrip(self._prefix))
