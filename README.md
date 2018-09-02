@@ -27,7 +27,7 @@ def whoami(msg):
     return f'{msg.sender.first_name} {msg.sender.last_name}'
 ```
 
-#### More involved cmd handler
+#### More involved cmd handler example
 ```python
 import operator
 
@@ -53,6 +53,5 @@ def calc(op, a, b):
 
 #### Run bot
 ```python
-# Run
 bot.run()
 ```
