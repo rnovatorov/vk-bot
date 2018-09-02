@@ -38,7 +38,7 @@ class CmdHandlerMixin(object):
             parser_class=CmdParser
         )
 
-    def add_command(self, func, name=None, args=None):
+    def add_command(self, func, name=None, args=None, pass_msg=False):
         if name is None:
             name = func.__name__
 
@@ -56,7 +56,7 @@ class CmdHandlerMixin(object):
         for arg, params in args.items():
             parser.add_argument(arg, **params)
 
-        parser.set_defaults(_func=func)
+        parser.set_defaults(_func=func, _pass_msg=pass_msg)
 
     def command(self, *args, **kwargs):
         """
@@ -90,11 +90,14 @@ class CmdHandlerMixin(object):
 
             else:
                 try:
-                    response = ns._func(msg, **{
+                    kwargs = {
                         k: v
                         for k, v in vars(ns).items()
                         if not k.startswith('_')
-                    })
+                    }
+                    if ns._pass_msg:
+                        kwargs['msg'] = msg
+                    response = ns._func(**kwargs)
                 except Exception as e:
                     logging.exception(e)
                     response = "Error."
