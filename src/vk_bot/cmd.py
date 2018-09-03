@@ -1,6 +1,6 @@
 import shlex
 import logging
-from argparse import ArgumentParser
+from argparse import ArgumentParser, SUPPRESS
 from vk_client.enums import GroupEventType
 
 
@@ -11,8 +11,10 @@ class CmdParserExit(Exception):
 class CmdParser(ArgumentParser):
 
     def __init__(self, *args, **kwargs):
-        super(CmdParser, self).__init__(*args, **kwargs)
+        super(CmdParser, self).__init__(*args, add_help=False, **kwargs)
         self._msg_buff = ""
+
+        self.add_argument("-h", action="help", default=SUPPRESS)
 
     def _print_message(self, message, file=None):
         self._msg_buff += message
