@@ -7,8 +7,6 @@ from .concur import Queue, Producer, Consumer
 class VkBot(object):
 
     def __init__(self, access_token):
-        super(VkBot, self).__init__()
-
         self.vk = VkClient(access_token)
 
         self._queue = Queue()
