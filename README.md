@@ -21,7 +21,7 @@ bot = vk_bot.VkBot('YOUR_ACCESS_TOKEN')
 ```
 
 #### Register event handlers
-```
+```python
 from vk_client import GroupEventType
 
 @bot.on([GroupEventType.GROUP_JOIN])
@@ -33,7 +33,7 @@ def group_join_handler(obj):
 ```
 
 #### Create event handler for commands
-```
+```python
 from vk_bot.ext import CmdHandler
 
 command = CmdHandler(bot)
