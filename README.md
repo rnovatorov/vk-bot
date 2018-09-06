@@ -41,6 +41,14 @@ command = CmdHandler(bot)
 
 #### Register commands
 ```python
+@bot.command(pass_msg=True)
+def whoami(msg):
+    """Print effective user name."""
+    return f'{msg.sender.first_name} {msg.sender.last_name}'
+```
+
+#### More involved command example
+```python
 import operator
 
 OPS = {
