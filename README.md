@@ -10,6 +10,7 @@
 pip install vk-bot
 ```
 
+
 ## Usage
 
 #### Create bot
@@ -19,15 +20,26 @@ import vk_bot
 bot = vk_bot.VkBot('YOUR_ACCESS_TOKEN')
 ```
 
-#### Register cmd handlers
-```python
-@bot.command(pass_msg=True)
-def whoami(msg):
-    """Print effective user name."""
-    return f'{msg.sender.first_name} {msg.sender.last_name}'
+#### Register event handlers
+```
+from vk_client import GroupEventType
+
+@bot.on([GroupEventType.GROUP_JOIN])
+def group_join_handler(obj):
+    bot.vk.Message.send(
+        peer=obj.user,
+        message=f'Welcome, {obj.user.first_name}!'
+    )
 ```
 
-#### More involved cmd handler example
+#### Create event handler for commands
+```
+from vk_bot.ext import CmdHandler
+
+command = CmdHandler(bot)
+```
+
+#### Register commands
 ```python
 import operator
 
@@ -38,7 +50,7 @@ OPS = {
     'div': operator.truediv
 }
 
-@bot.command(args={
+@command(args={
     'op': {'choices': list(OPS)},
     'a': {'type': int},
     'b': {'type': int}

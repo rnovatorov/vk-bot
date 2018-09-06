@@ -1,5 +1,5 @@
 __title__ = "vk-bot"
-__version__ = "0.3.2"
+__version__ = "0.4.0"
 __description__ = "Python 2/3 VK bot builder."
 __url__ = "https://github.com/Suenweek/vk-bot"
 __author__ = "Roman Novatorov"

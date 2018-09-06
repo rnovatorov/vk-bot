@@ -1,5 +1,5 @@
 import pytest
-from vk_bot.cmd import CmdParser, CmdParserExit
+from vk_bot.ext.cmd import CmdParser, CmdParserExit
 
 
 @pytest.fixture(name="cmd_parser")

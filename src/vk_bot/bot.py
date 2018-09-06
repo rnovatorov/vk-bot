@@ -1,11 +1,10 @@
 import logging
 from collections import defaultdict
 from vk_client import VkClient
-from .cmd import CmdHandlerMixin
 from .concur import Queue, Producer, Consumer
 
 
-class VkBot(CmdHandlerMixin):
+class VkBot(object):
 
     def __init__(self, access_token):
         super(VkBot, self).__init__()
@@ -15,8 +14,6 @@ class VkBot(CmdHandlerMixin):
         self._queue = Queue()
         self._workers = []
         self._event_handlers = defaultdict(list)
-
-        self._enable_cmd_handler()
 
     def add_event_handler(self, event_type, event_handler):
         logging.debug("Registering %s to handle %s",

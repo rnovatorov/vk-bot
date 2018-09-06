@@ -1,7 +1,7 @@
 import shlex
 import logging
 from argparse import ArgumentParser, SUPPRESS
-from vk_client.enums import GroupEventType
+from vk_client import GroupEventType
 
 
 class CmdParserExit(Exception):
@@ -28,19 +28,23 @@ class CmdParser(ArgumentParser):
         raise CmdParserExit(msg)
 
 
-class CmdHandlerMixin(object):
+class CmdHandler(object):
 
-    vk = NotImplemented
-    on = NotImplemented
-
-    def __init__(self, prefix="$ "):
-        self._prefix = prefix
-        self._parser = CmdParser(prog=prefix)
-        self._subparsers = self._parser.add_subparsers(
+    def __init__(self, bot=None, prefix="$ "):
+        self.bot = bot
+        self.prefix = prefix
+        self.root_parser = CmdParser(prog=prefix)
+        self.subparsers = self.root_parser.add_subparsers(
             parser_class=CmdParser
         )
+        if bot is not None:
+            self.init_bot(bot)
 
-    def add_command(self, func, name=None, args=None, pass_msg=False):
+    def init_bot(self, bot):
+        self.bot = bot
+        self.enable()
+
+    def add(self, func, name=None, args=None, pass_msg=False):
         if name is None:
             name = func.__name__
 
@@ -50,7 +54,7 @@ class CmdHandlerMixin(object):
         logging.debug("Registering %s to handle '%s', args: %s",
                       func, name, args)
 
-        parser = self._subparsers.add_parser(
+        parser = self.subparsers.add_parser(
             name=name,
             description=func.__doc__
         )
@@ -60,30 +64,30 @@ class CmdHandlerMixin(object):
 
         parser.set_defaults(_func=func, _pass_msg=pass_msg)
 
-    def command(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs):
         """
-        Decorator version of `self.add_command`.
+        Decorator version of `self.add`.
         """
         def registering_wrapper(func):
-            self.add_command(func, *args, **kwargs)
+            self.add(func, *args, **kwargs)
             return func
 
         return registering_wrapper
 
-    def _enable_cmd_handler(self):
+    def enable(self):
 
-        @self.on([GroupEventType.MESSAGE_NEW])
+        @self.bot.on([GroupEventType.MESSAGE_NEW])
         def handle_cmd(msg):
-            if not msg.text.startswith(self._prefix):
+            if not msg.text.startswith(self.prefix):
                 return
 
             logging.debug("Got cmd: '%s'", msg.text)
 
-            args_list = shlex.split(msg.text.lstrip(self._prefix))
+            args_list = shlex.split(msg.text.lstrip(self.prefix))
             logging.debug("Args list: %s", args_list)
 
             try:
-                ns = self._parser.parse_args(args_list)
+                ns = self.root_parser.parse_args(args_list)
                 logging.debug("Ns: %s", ns)
 
             except CmdParserExit as e:
@@ -105,4 +109,4 @@ class CmdHandlerMixin(object):
                     response = "Error."
 
             if response:
-                self.vk.Message.send(msg.sender, response)
+                self.bot.vk.Message.send(msg.sender, response)
