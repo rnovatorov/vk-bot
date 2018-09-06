@@ -18,7 +18,7 @@ class CmdParser(ArgumentParser):
             '-h',
             action='help',
             default=SUPPRESS,
-            help='show this help message and exit'
+            help='show this help message'
         )
 
     def _print_message(self, message, file=None):
@@ -35,7 +35,7 @@ class CmdParser(ArgumentParser):
 
 class CmdHandler(object):
 
-    def __init__(self, bot=None, prefix='$ '):
+    def __init__(self, bot=None, prefix='$ ', version=None):
         self.bot = bot
 
         self.prefix = prefix
@@ -46,6 +46,15 @@ class CmdHandler(object):
 
         if bot is not None:
             self.init_bot(bot)
+
+        if version is not None:
+            self.root_parser.add_argument(
+                '-V',
+                action='version',
+                default=SUPPRESS,
+                version=version,
+                help='show bot version number'
+            )
 
     def init_bot(self, bot):
         self.bot = bot
