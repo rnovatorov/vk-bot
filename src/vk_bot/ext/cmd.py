@@ -12,9 +12,14 @@ class CmdParser(ArgumentParser):
 
     def __init__(self, *args, **kwargs):
         super(CmdParser, self).__init__(*args, add_help=False, **kwargs)
-        self._msg_buff = ""
+        self._msg_buff = ''
 
-        self.add_argument("-h", action="help", default=SUPPRESS)
+        self.add_argument(
+            '-h',
+            action='help',
+            default=SUPPRESS,
+            help='show this help message and exit'
+        )
 
     def _print_message(self, message, file=None):
         self._msg_buff += message
@@ -23,20 +28,22 @@ class CmdParser(ArgumentParser):
         if message:
             self._print_message(message)
 
-        msg, self._msg_buff = self._msg_buff, ""
+        msg, self._msg_buff = self._msg_buff, ''
 
         raise CmdParserExit(msg)
 
 
 class CmdHandler(object):
 
-    def __init__(self, bot=None, prefix="$ "):
+    def __init__(self, bot=None, prefix='$ '):
         self.bot = bot
+
         self.prefix = prefix
         self.root_parser = CmdParser(prog=prefix)
         self.subparsers = self.root_parser.add_subparsers(
             parser_class=CmdParser
         )
+
         if bot is not None:
             self.init_bot(bot)
 
@@ -51,7 +58,7 @@ class CmdHandler(object):
         if args is None:
             args = {}
 
-        logging.debug("Registering %s to handle '%s', args: %s",
+        logging.debug('Registering %s to handle "%s", args: %s',
                       func, name, args)
 
         parser = self.subparsers.add_parser(
@@ -81,18 +88,18 @@ class CmdHandler(object):
             if not msg.text.startswith(self.prefix):
                 return
 
-            logging.debug("Got cmd: '%s'", msg.text)
+            logging.debug('Got cmd: "%s"', msg.text)
 
             args_list = shlex.split(msg.text.lstrip(self.prefix))
-            logging.debug("Args list: %s", args_list)
+            logging.debug('Args list: %s', args_list)
 
             try:
                 ns = self.root_parser.parse_args(args_list)
-                logging.debug("Ns: %s", ns)
+                logging.debug('Ns: %s', ns)
 
             except CmdParserExit as e:
-                logging.debug("CmdParserExit: %s", e)
-                response = str(e) or "Unable to parse a command."
+                logging.debug('CmdParserExit: %s', e)
+                response = str(e) or 'Unable to parse a command.'
 
             else:
                 try:
@@ -106,7 +113,7 @@ class CmdHandler(object):
                     response = ns._func(**kwargs)
                 except Exception as e:
                     logging.exception(e)
-                    response = "Error."
+                    response = 'Error.'
 
             if response:
                 self.bot.vk.Message.send(msg.sender, response)

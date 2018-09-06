@@ -14,7 +14,7 @@ class VkBot(object):
         self._event_handlers = defaultdict(list)
 
     def add_event_handler(self, event_type, event_handler):
-        logging.debug("Registering %s to handle %s",
+        logging.debug('Registering %s to handle %s',
                       event_handler, event_type)
         self._event_handlers[event_type].append(event_handler)
 
@@ -30,27 +30,27 @@ class VkBot(object):
         return registering_wrapper
 
     def run(self, n_workers):
-        logging.debug("Running with %d workers", n_workers)
+        logging.debug('Running with %d workers', n_workers)
         blp = self.vk.BotsLongPoll.get()
 
         self._workers.append(Producer(
             queue=self._queue,
             func=blp.get_updates,
-            name="Producer"
+            name='Producer'
         ))
 
         for i in range(n_workers):
             self._workers.append(Consumer(
                 queue=self._queue,
                 func=self._dispatch_event,
-                name="Consumer-%d" % i
+                name='Consumer-%d' % i
             ))
 
         for worker in self._workers:
-            logging.debug("Starting %s", worker.name)
+            logging.debug('Starting %s', worker.name)
             worker.start()
 
     def _dispatch_event(self, event):
         for event_handler in self._event_handlers[event.type]:
-            logging.debug("Dispatching %s to %s", event, event_handler)
+            logging.debug('Dispatching %s to %s', event, event_handler)
             event_handler(event.object)
