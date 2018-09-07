@@ -35,11 +35,14 @@ class CmdParser(ArgumentParser):
 
 class CmdHandler(object):
 
-    def __init__(self, bot=None, prefix='$ ', version=None):
+    def __init__(self, bot=None, prefix='$ ', version='0.0.1'):
         self.bot = bot
 
         self.prefix = prefix
-        self.root_parser = CmdParser(prog=prefix)
+        self.root_parser = CmdParser(
+            prog=prefix,
+            usage='{} [OPTIONS] CMD [CMD_OPTIONS]'.format(prefix)
+        )
         self.subparsers = self.root_parser.add_subparsers(
             parser_class=CmdParser
         )
@@ -47,14 +50,13 @@ class CmdHandler(object):
         if bot is not None:
             self.init_bot(bot)
 
-        if version is not None:
-            self.root_parser.add_argument(
-                '-V',
-                action='version',
-                default=SUPPRESS,
-                version=version,
-                help='show bot version number'
-            )
+        self.root_parser.add_argument(
+            '-V',
+            action='version',
+            default=SUPPRESS,
+            version=version,
+            help='show bot version number'
+        )
 
     def init_bot(self, bot):
         self.bot = bot
