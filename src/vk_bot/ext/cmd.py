@@ -40,8 +40,7 @@ class CmdHandler(object):
 
         self.prefix = prefix
         self.root_parser = CmdParser(
-            prog=prefix,
-            usage='{} [OPTIONS] CMD [CMD_OPTIONS]'.format(prefix)
+            prog=prefix
         )
         self.subparsers = self.root_parser.add_subparsers(
             parser_class=CmdParser
