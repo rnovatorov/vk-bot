@@ -10,4 +10,4 @@ pytest-mock = "*"
 
 [packages]
 six = "*"
-vk-client = "*"
+vk-client = {git = "https://github.com/suenweek/vk-client", editable = true}
