@@ -53,4 +53,7 @@ class VkBot(object):
     def _dispatch_event(self, event):
         for event_handler in self._event_handlers[event.type]:
             logging.debug('Dispatching %s to %s', event, event_handler)
-            event_handler(event.object)
+            try:
+                event_handler(event.object)
+            except Exception as e:
+                logging.exception(e)
