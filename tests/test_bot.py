@@ -1,6 +1,5 @@
 import pytest
 import vk_bot
-from vk_client.enums import GroupEventType
 
 
 @pytest.fixture(name="bot")

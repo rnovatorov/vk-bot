@@ -63,7 +63,7 @@ class CmdHandler(object):
 
     def add(self, func, name=None, args=None, pass_msg=False):
         if name is None:
-            name = func.__name__
+            name = func.__name__.replace('_', '-')
 
         if args is None:
             args = {}

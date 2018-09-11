@@ -36,7 +36,7 @@ class TestCmdParser(object):
         try:
             cmd_parser.parse_args(args_list)
         except CmdParserExit as e:
-            assert "usage" in e.message
+            assert "usage" in str(e)
         else:
             pytest.fail("Expected exception to be raised.")
 
@@ -52,7 +52,7 @@ class TestCmdParser(object):
         try:
             cmd_parser.parse_args(args_list)
         except CmdParserExit as e:
-            assert "usage" in e.message
-            assert "error" in e.message
+            assert "usage" in str(e)
+            assert "error" in str(e)
         else:
             pytest.fail("Expected exception to be raised.")
