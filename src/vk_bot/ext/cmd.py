@@ -114,13 +114,16 @@ class CmdHandler(object):
             else:
                 try:
                     kwargs = {
-                        k: v
+                        k.replace('-', '_'): v
                         for k, v in vars(ns).items()
                         if not k.startswith('_')
                     }
+
                     if ns._pass_msg:
                         kwargs['msg'] = msg
+
                     response = ns._func(**kwargs)
+
                 except Exception as e:
                     logging.exception(e)
                     response = 'Error.'
