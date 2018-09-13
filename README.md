@@ -1,6 +1,6 @@
 # `vk-bot`
 
-`vk-bot` is a Python 2/3 VK bot builder built with
+`vk-bot` is a Py3 VK bot builder built with
 [`vk-client`](https://github.com/Suenweek/vk-client).
 
 
