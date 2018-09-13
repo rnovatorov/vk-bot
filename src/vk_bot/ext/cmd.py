@@ -1,5 +1,4 @@
 import shlex
-import logging
 from argparse import ArgumentParser, SUPPRESS
 from vk_client import GroupEventType
 
@@ -33,7 +32,7 @@ class CmdParser(ArgumentParser):
         raise CmdParserExit(msg)
 
 
-class CmdHandler(object):
+class CmdHandler:
 
     def __init__(self, bot=None, prefix='$ ', version='0.0.1'):
         self.bot = bot
@@ -68,9 +67,6 @@ class CmdHandler(object):
         if args is None:
             args = {}
 
-        logging.debug('Registering %s to handle "%s", args: %s',
-                      func, name, args)
-
         parser = self.subparsers.add_parser(
             name=name,
             description=func.__doc__
@@ -98,17 +94,12 @@ class CmdHandler(object):
             if not msg.text.startswith(self.prefix):
                 return
 
-            logging.debug('Got cmd: "%s"', msg.text)
-
             args_list = shlex.split(msg.text.lstrip(self.prefix))
-            logging.debug('Args list: %s', args_list)
 
             try:
                 ns = self.root_parser.parse_args(args_list)
-                logging.debug('Ns: %s', ns)
 
             except CmdParserExit as e:
-                logging.debug('CmdParserExit: %s', e)
                 response = str(e) or 'Unable to parse a command.'
 
             else:
@@ -125,8 +116,7 @@ class CmdHandler(object):
                     response = ns._func(**kwargs)
 
                 except Exception as e:
-                    logging.exception(e)
-                    response = 'Error.'
+                    response = str(e)
 
             if response:
                 self.bot.vk.Message.send(msg.sender, response)

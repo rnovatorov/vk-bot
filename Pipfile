@@ -9,5 +9,7 @@ pytest = "*"
 pytest-mock = "*"
 
 [packages]
-six = "*"
 vk-client = {git = "https://github.com/suenweek/vk-client", editable = true}
+
+[requires]
+python_version = "3.7"
