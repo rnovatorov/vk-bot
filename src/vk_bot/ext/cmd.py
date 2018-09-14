@@ -87,11 +87,14 @@ class CmdHandler:
 
         return registering_wrapper
 
+    def msg_is_cmd(self, msg):
+        return msg.text.startswith(self.prefix)
+
     def enable(self):
 
         @self.bot.on([GroupEventType.MESSAGE_NEW])
         def handle_cmd(msg):
-            if not msg.text.startswith(self.prefix):
+            if not self.msg_is_cmd(msg):
                 return
 
             args_list = shlex.split(msg.text.lstrip(self.prefix))
