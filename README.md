@@ -6,8 +6,14 @@
 
 ## Install
 
+Stable from PyPI:
 ```bash
 pip install vk-bot
+```
+
+Bleeding edge from Github:
+```bash
+pip install git+https://github.com/Suenweek/vk-bot#egg=vk-bot
 ```
 
 
