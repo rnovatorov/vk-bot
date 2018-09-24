@@ -28,14 +28,17 @@ class Consumer(Thread):
         self.consume = consume
 
     def run(self):
-        while True:
+        finished = False
+
+        while not finished:
             task = self.queue.get()
+
             if task is not SENTINEL:
                 self.consume(task)
-                self.queue.task_done()
             else:
-                self.queue.task_done()
-                break
+                finished = True
+
+            self.queue.task_done()
 
 
 class Dispatcher:
