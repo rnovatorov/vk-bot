@@ -4,6 +4,11 @@
 [`vk-client`](https://github.com/Suenweek/vk-client).
 
 
+## Status
+No longer maintained: take a look at
+[`async-vk-bot`](https://github.com/Suenweek/async-vk-bot)
+instead.
+
 ## Install
 
 Stable from PyPI:
